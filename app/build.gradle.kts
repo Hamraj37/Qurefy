@@ -1,3 +1,5 @@
+import java.util.Base64
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -21,10 +23,21 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("hamraj37.jks")
-            storePassword = "Hamraj37Key"
-            keyAlias = "Hamraj37"
-            keyPassword = "Hamraj37Key"
+            val keystoreBase64 = System.getenv("KEYSTORE_BASE64")
+            val keystoreFile = if (!keystoreBase64.isNullOrEmpty()) {
+                val decodedBytes = Base64.getDecoder().decode(keystoreBase64.trim().replace("\n", "").replace("\r", ""))
+                file("${layout.buildDirectory.get()}/decoded_keystore.jks").apply {
+                    parentFile.mkdirs()
+                    writeBytes(decodedBytes)
+                }
+            } else {
+                file("hamraj37.jks")
+            }
+
+            storeFile = keystoreFile
+            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "Hamraj37Key"
+            keyAlias = System.getenv("KEY_ALIAS") ?: "Hamraj37"
+            keyPassword = System.getenv("KEY_PASSWORD") ?: "Hamraj37Key"
         }
     }
 
