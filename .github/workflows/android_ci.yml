@@ -53,3 +53,27 @@ jobs:
           name: Qurafy-Release-APK
           path: app/build/outputs/apk/release/app-release.apk
           if-no-files-found: ignore
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: success()
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: Qurafy v1.0.${{ github.run_number }}
+          body: |
+            ## Qurafy Quran Reader App 📖
+            
+            ### Package Information
+            - **Version**: 1.0.${{ github.run_number }}
+            - **Target SDK**: Android 11+ (API 30–36)
+            
+            ### Features
+            - Authentic `quran-roman-urdu-hindi.pdf` rendering with LRU bitmap caching.
+            - Interactive pencil marking and yellow highlighter tools.
+            - Smooth 2-finger pinch zoom (1x to 3.5x).
+            - Home dashboard with reading progress and saved bookmarks manager.
+          files: |
+            app/build/outputs/apk/release/app-release.apk
+            app/build/outputs/apk/debug/app-debug.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
