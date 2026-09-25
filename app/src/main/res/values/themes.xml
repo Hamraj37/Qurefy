@@ -1,0 +1,4 @@
+<resources>
+
+    <style name="Theme.Qurafy" parent="Theme.MaterialComponents.Light" />
+</resources>
