@@ -54,17 +54,23 @@ jobs:
           path: app/build/outputs/apk/release/app-release.apk
           if-no-files-found: ignore
 
+      - name: Extract App Version Name
+        id: get_version
+        run: |
+          VERSION_NAME=$(grep -oP 'versionName\s*=\s*"\K[^"]+' app/build.gradle.kts || echo "1.0.1")
+          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         if: success()
         with:
-          tag_name: v1.0.${{ github.run_number }}
-          name: Qurafy v1.0.${{ github.run_number }}
+          tag_name: v${{ steps.get_version.outputs.version_name }}
+          name: Qurafy v${{ steps.get_version.outputs.version_name }}
           body: |
             ## Qurafy Quran Reader App 📖
             
             ### Package Information
-            - **Version**: 1.0.${{ github.run_number }}
+            - **Version**: ${{ steps.get_version.outputs.version_name }}
             - **Target SDK**: Android 11+ (API 30–36)
             
             ### Features
