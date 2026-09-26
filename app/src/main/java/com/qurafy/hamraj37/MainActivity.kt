@@ -1,5 +1,7 @@
 package com.qurafy.hamraj37
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,11 +18,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import com.qurafy.hamraj37.data.repository.NightModePreference
 import com.qurafy.hamraj37.ui.home.HomeScreen
 import com.qurafy.hamraj37.ui.reader.QuranReaderScreen
 import com.qurafy.hamraj37.ui.reader.QuranReaderViewModel
 import com.qurafy.hamraj37.ui.theme.QurafyTheme
+import com.qurafy.hamraj37.ui.update.AppUpdateDialog
 
 enum class ScreenDestination {
     HOME,
@@ -39,6 +43,7 @@ class MainActivity : ComponentActivity() {
             val lastReadPage by viewModel.lastReadPage.collectAsState()
             val totalPages by viewModel.pageCount.collectAsState()
             val bookmarkedPages by viewModel.bookmarkedPages.collectAsState()
+            val availableUpdate by viewModel.availableUpdate.collectAsState()
 
             var currentDestination by remember { mutableStateOf(ScreenDestination.HOME) }
             var targetReaderPage by remember { mutableIntStateOf(lastReadPage) }
@@ -70,6 +75,9 @@ class MainActivity : ComponentActivity() {
                                     viewModel.saveLastReadPage(targetPage)
                                     targetReaderPage = targetPage
                                     currentDestination = ScreenDestination.READER
+                                },
+                                onCheckForUpdates = {
+                                    viewModel.checkForUpdates(isManual = true)
                                 }
                             )
                         }
@@ -83,6 +91,29 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
+                    }
+
+                    // Toast message for update status
+                    val context = LocalContext.current
+                    val updateCheckMessage by viewModel.updateCheckMessage.collectAsState()
+                    LaunchedEffect(updateCheckMessage) {
+                        updateCheckMessage?.let { msg ->
+                            android.widget.Toast.makeText(context, msg, android.widget.Toast.LENGTH_SHORT).show()
+                            viewModel.dismissUpdateMessage()
+                        }
+                    }
+
+                    // Render Update Dialog if available
+                    availableUpdate?.let { updateInfo ->
+                        AppUpdateDialog(
+                            updateInfo = updateInfo,
+                            onDismiss = { viewModel.dismissUpdateDialog() },
+                            onDownloadUpdate = { downloadUrl ->
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(downloadUrl))
+                                context.startActivity(intent)
+                                viewModel.dismissUpdateDialog()
+                            }
+                        )
                     }
                 }
             }

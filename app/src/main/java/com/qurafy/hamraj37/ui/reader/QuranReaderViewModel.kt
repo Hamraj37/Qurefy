@@ -11,7 +11,9 @@ import com.qurafy.hamraj37.data.model.QuranMetaData
 import com.qurafy.hamraj37.data.model.QuranVerse
 import com.qurafy.hamraj37.data.model.Reciter
 import com.qurafy.hamraj37.data.model.Surah
+import com.qurafy.hamraj37.data.model.UpdateInfo
 import com.qurafy.hamraj37.data.model.VerseMatch
+import com.qurafy.hamraj37.data.repository.GitHubUpdateChecker
 import com.qurafy.hamraj37.data.repository.NightModePreference
 import com.qurafy.hamraj37.data.repository.QuranTextRepository
 import com.qurafy.hamraj37.data.repository.UserPreferencesRepository
@@ -131,9 +133,55 @@ class QuranReaderViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
+    // GitHub Update Checker State
+    val currentAppVersionName: String
+        get() {
+            return try {
+                val pInfo = getApplication<Application>().packageManager.getPackageInfo(getApplication<Application>().packageName, 0)
+                pInfo.versionName ?: "1.0.1"
+            } catch (e: Exception) {
+                "1.0.1"
+            }
+        }
+
+    private val updateChecker = GitHubUpdateChecker()
+
+    private val _availableUpdate = MutableStateFlow<UpdateInfo?>(null)
+    val availableUpdate: StateFlow<UpdateInfo?> = _availableUpdate.asStateFlow()
+
+    private val _isCheckingForUpdates = MutableStateFlow(false)
+    val isCheckingForUpdates: StateFlow<Boolean> = _isCheckingForUpdates.asStateFlow()
+
+    private val _updateCheckMessage = MutableStateFlow<String?>(null)
+    val updateCheckMessage: StateFlow<String?> = _updateCheckMessage.asStateFlow()
+
+    fun checkForUpdates(isManual: Boolean = false) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _isCheckingForUpdates.value = true
+            val version = currentAppVersionName
+            val updateInfo = updateChecker.checkForUpdate(version)
+            _isCheckingForUpdates.value = false
+
+            if (updateInfo != null) {
+                _availableUpdate.value = updateInfo
+            } else if (isManual) {
+                _updateCheckMessage.value = "You are using the latest version (v$version)."
+            }
+        }
+    }
+
+    fun dismissUpdateDialog() {
+        _availableUpdate.value = null
+    }
+
+    fun dismissUpdateMessage() {
+        _updateCheckMessage.value = null
+    }
+
     init {
         loadSavedReciter()
         initializePdfRepository()
+        checkForUpdates()
     }
 
     private fun loadSavedReciter() {

@@ -67,6 +67,7 @@ import androidx.compose.ui.unit.sp
 import com.qurafy.hamraj37.data.model.Juz
 import com.qurafy.hamraj37.data.model.QuranMetaData
 import com.qurafy.hamraj37.data.model.Surah
+import androidx.compose.material.icons.rounded.SystemUpdate
 import com.qurafy.hamraj37.data.repository.NightModePreference
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,7 +79,8 @@ fun HomeScreen(
     nightMode: NightModePreference,
     onSetNightMode: (NightModePreference) -> Unit,
     onToggleBookmark: (Int) -> Unit,
-    onOpenReader: (targetPage: Int) -> Unit
+    onOpenReader: (targetPage: Int) -> Unit,
+    onCheckForUpdates: () -> Unit = {}
 ) {
     var showThemeMenu by remember { mutableStateOf(false) }
     var selectedTabIndex by remember { mutableIntStateOf(0) } // 0: Surahs, 1: Juzs, 2: Bookmarks
@@ -200,6 +202,14 @@ fun HomeScreen(
                                 onClick = {
                                     onSetNightMode(NightModePreference.SYSTEM)
                                     showThemeMenu = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Check for Updates") },
+                                leadingIcon = { Icon(Icons.Rounded.SystemUpdate, contentDescription = null) },
+                                onClick = {
+                                    showThemeMenu = false
+                                    onCheckForUpdates()
                                 }
                             )
                         }
