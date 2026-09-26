@@ -72,6 +72,7 @@ import androidx.compose.material.icons.rounded.Home
 
 @Composable
 fun QuranReaderScreen(
+    initialPage: Int = 1,
     viewModel: QuranReaderViewModel = viewModel(),
     onNavigateHome: (() -> Unit)? = null
 ) {
@@ -103,15 +104,30 @@ fun QuranReaderScreen(
     val scope = rememberCoroutineScope()
 
     // Pager state
-    val initialPageIndex = remember(lastReadPage, totalPages) { (lastReadPage - 1).coerceIn(0, (totalPages - 1).coerceAtLeast(0)) }
+    val targetIndex = (initialPage - 1).coerceIn(0, (totalPages - 1).coerceAtLeast(0))
     val pagerState = rememberPagerState(
-        initialPage = initialPageIndex,
+        initialPage = targetIndex,
         pageCount = { totalPages }
     )
+
+    LaunchedEffect(initialPage, totalPages) {
+        val idx = (initialPage - 1).coerceIn(0, (totalPages - 1).coerceAtLeast(0))
+        if (pagerState.currentPage != idx) {
+            pagerState.scrollToPage(idx)
+        }
+    }
 
     // Current page 1-based
     val currentPage = pagerState.currentPage + 1
     val isCurrentBookmarked = remember(currentPage, bookmarkedPages) { bookmarkedPages.contains(currentPage) }
+    val currentSurah = remember(currentPage) { QuranMetaData.getSurahForPage(currentPage) }
+    val headerTitle = remember(currentSurah, currentPage) {
+        if (currentSurah != null) {
+            "${currentSurah.nameTransliteration} (${currentSurah.nameArabic})"
+        } else {
+            "Page $currentPage"
+        }
+    }
 
     // Controls visibility
     var showControls by remember { mutableStateOf(true) }
@@ -231,7 +247,7 @@ fun QuranReaderScreen(
                 exit = fadeOut() + slideOutVertically { -it },
                 modifier = Modifier.align(Alignment.TopCenter)
             ) {
-                TopHeaderCard()
+                TopHeaderCard(title = headerTitle)
             }
 
             // Separate Top Right Floating Pencil Button Overlay
@@ -461,6 +477,7 @@ fun QuranReaderScreen(
 
 @Composable
 fun TopHeaderCard(
+    title: String,
     modifier: Modifier = Modifier
 ) {
     val glassBorderBrush = remember {
@@ -481,10 +498,10 @@ fun TopHeaderCard(
         shape = CircleShape,
         tonalElevation = 12.dp,
         shadowElevation = 12.dp,
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f)
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f)
     ) {
         Text(
-            text = "Qurafy",
+            text = title,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,

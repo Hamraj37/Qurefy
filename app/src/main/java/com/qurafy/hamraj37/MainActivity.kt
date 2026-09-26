@@ -8,8 +8,10 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,6 +41,13 @@ class MainActivity : ComponentActivity() {
             val bookmarkedPages by viewModel.bookmarkedPages.collectAsState()
 
             var currentDestination by remember { mutableStateOf(ScreenDestination.HOME) }
+            var targetReaderPage by remember { mutableIntStateOf(lastReadPage) }
+
+            LaunchedEffect(lastReadPage) {
+                if (currentDestination == ScreenDestination.HOME) {
+                    targetReaderPage = lastReadPage
+                }
+            }
 
             val isDark = when (nightMode) {
                 NightModePreference.DARK -> true
@@ -59,6 +68,7 @@ class MainActivity : ComponentActivity() {
                                 onToggleBookmark = { page -> viewModel.toggleBookmark(page) },
                                 onOpenReader = { targetPage ->
                                     viewModel.saveLastReadPage(targetPage)
+                                    targetReaderPage = targetPage
                                     currentDestination = ScreenDestination.READER
                                 }
                             )
@@ -66,6 +76,7 @@ class MainActivity : ComponentActivity() {
 
                         ScreenDestination.READER -> {
                             QuranReaderScreen(
+                                initialPage = targetReaderPage,
                                 viewModel = viewModel,
                                 onNavigateHome = {
                                     currentDestination = ScreenDestination.HOME

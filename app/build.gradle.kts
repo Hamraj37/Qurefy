@@ -1,4 +1,5 @@
 import java.util.Base64
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -16,16 +17,27 @@ android {
         minSdk = 30
         targetSdk = 36
         versionCode = 1
-        versionName = "1.0.1"
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
         create("release") {
+            val localProps = Properties().apply {
+                val localPropsFile = rootProject.file("local.properties")
+                if (localPropsFile.exists()) {
+                    localPropsFile.inputStream().use { load(it) }
+                }
+            }
+
             val keystoreBase64 = System.getenv("KEYSTORE_BASE64")
+                ?: localProps.getProperty("KEYSTORE_BASE64")
+                ?: project.findProperty("KEYSTORE_BASE64") as? String
+
             val keystoreFile = if (!keystoreBase64.isNullOrEmpty()) {
-                val decodedBytes = Base64.getDecoder().decode(keystoreBase64.trim().replace("\n", "").replace("\r", ""))
+                val cleanBase64 = keystoreBase64.trim().removePrefix("-").replace("\n", "").replace("\r", "")
+                val decodedBytes = Base64.getDecoder().decode(cleanBase64)
                 file("${layout.buildDirectory.get()}/decoded_keystore.jks").apply {
                     parentFile.mkdirs()
                     writeBytes(decodedBytes)
@@ -35,9 +47,18 @@ android {
             }
 
             storeFile = keystoreFile
-            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "Hamraj37Key"
-            keyAlias = System.getenv("KEY_ALIAS") ?: "Hamraj37"
-            keyPassword = System.getenv("KEY_PASSWORD") ?: "Hamraj37Key"
+            storePassword = System.getenv("KEYSTORE_PASSWORD")
+                ?: localProps.getProperty("KEYSTORE_PASSWORD")
+                ?: localProps.getProperty("KEYSTORE_PASSWORD:")
+                ?: "Hamraj37Key"
+            keyAlias = System.getenv("KEY_ALIAS")
+                ?: localProps.getProperty("KEY_ALIAS")
+                ?: localProps.getProperty("KEY_ALIAS:")
+                ?: "Hamraj37"
+            keyPassword = System.getenv("KEY_PASSWORD")
+                ?: localProps.getProperty("KEY_PASSWORD")
+                ?: localProps.getProperty("KEY_PASSWORD:")
+                ?: "Hamraj37Key"
         }
     }
 

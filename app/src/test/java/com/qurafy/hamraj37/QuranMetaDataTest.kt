@@ -13,8 +13,8 @@ class QuranMetaDataTest {
         assertEquals(114, QuranMetaData.surahs.size)
         assertEquals(1, QuranMetaData.surahs.first().number)
         assertEquals(114, QuranMetaData.surahs.last().number)
-        assertEquals("Al-Fatiha", QuranMetaData.surahs.first().nameTransliteration)
-        assertEquals("An-Nas", QuranMetaData.surahs.last().nameTransliteration)
+        assertEquals("Fātiha", QuranMetaData.surahs.first().nameTransliteration)
+        assertEquals("An-Nās", QuranMetaData.surahs.last().nameTransliteration)
     }
 
     @Test
@@ -23,12 +23,12 @@ class QuranMetaDataTest {
         assertEquals(1, QuranMetaData.juzs.first().number)
         assertEquals(30, QuranMetaData.juzs.last().number)
         assertEquals(1, QuranMetaData.juzs.first().startPage)
-        assertEquals(582, QuranMetaData.juzs.last().startPage)
+        assertEquals(578, QuranMetaData.juzs.last().startPage)
     }
 
     @Test
     fun verifySurahAndJuzPageMapping() {
-        // Page 1 should map to Al-Fatiha and Juz 1
+        // Page 1 should map to Fātiha and Juz 1
         val surahPage1 = QuranMetaData.getSurahForPage(1)
         val juzPage1 = QuranMetaData.getJuzForPage(1)
         assertNotNull(surahPage1)
@@ -36,13 +36,13 @@ class QuranMetaDataTest {
         assertEquals(1, surahPage1?.number)
         assertEquals(1, juzPage1?.number)
 
-        // Page 50 should map to Ali 'Imran (starts at 50) and Juz 3 (starts at 42)
-        val surahPage50 = QuranMetaData.getSurahForPage(50)
-        val juzPage50 = QuranMetaData.getJuzForPage(50)
-        assertEquals(3, surahPage50?.number)
-        assertEquals(3, juzPage50?.number)
+        // Page 52 should map to Āl-i-'Imrān (starts at 52) and Juz 3 (starts at 42)
+        val surahPage52 = QuranMetaData.getSurahForPage(52)
+        val juzPage52 = QuranMetaData.getJuzForPage(52)
+        assertEquals(3, surahPage52?.number)
+        assertEquals(3, juzPage52?.number)
 
-        // Page 604 should map to An-Nas (or latest Surah starting <= 604) and Juz 30
+        // Page 604 should map to An-Nās (or latest Surah starting <= 604) and Juz 30
         val surahPage604 = QuranMetaData.getSurahForPage(604)
         val juzPage604 = QuranMetaData.getJuzForPage(604)
         assertEquals(114, surahPage604?.number)

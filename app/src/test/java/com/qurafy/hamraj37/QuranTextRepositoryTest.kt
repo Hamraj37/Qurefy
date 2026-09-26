@@ -50,7 +50,7 @@ class QuranTextRepositoryTest {
         val verses = repository.getVersesForPage(1)
         assertEquals(7, verses.size)
         assertTrue("All verses on page 1 should belong to Surah 1", verses.all { it.surahNumber == 1 })
-        assertEquals("Al-Fatiha", verses.first().surahName)
+        assertEquals("Fātiha", verses.first().surahName)
         assertEquals(1, verses.first().verseNumber)
         assertEquals(7, verses.last().verseNumber)
 
@@ -92,15 +92,15 @@ class QuranTextRepositoryTest {
 
     @Test
     fun testVerificationSurah36YaSin() {
-        val page440Verses = repository.getVersesForPage(440)
-        assertFalse(page440Verses.isEmpty())
+        val page431Verses = repository.getVersesForPage(431)
+        assertFalse(page431Verses.isEmpty())
 
-        val yasinVerse1 = page440Verses.find { it.surahNumber == 36 && it.verseNumber == 1 }
-        assertNotNull("Surah 36 Ayat 1 should exist on page 440", yasinVerse1)
+        val yasinVerse1 = page431Verses.find { it.surahNumber == 36 && it.verseNumber == 1 }
+        assertNotNull("Surah 36 Ayat 1 should exist on page 431", yasinVerse1)
         assertEquals("Ya-Sin", yasinVerse1!!.transliterationText)
 
-        val yasinVerse2 = page440Verses.find { it.surahNumber == 36 && it.verseNumber == 2 }
-        assertNotNull("Surah 36 Ayat 2 should exist on page 440", yasinVerse2)
+        val yasinVerse2 = page431Verses.find { it.surahNumber == 36 && it.verseNumber == 2 }
+        assertNotNull("Surah 36 Ayat 2 should exist on page 431", yasinVerse2)
         assertEquals("Wal-Qur'anil-Hakim", yasinVerse2!!.transliterationText)
 
         // Verse 58
@@ -113,11 +113,11 @@ class QuranTextRepositoryTest {
 
     @Test
     fun testVerificationSurah67AlMulk() {
-        val page562Verses = repository.getVersesForPage(562)
-        assertFalse(page562Verses.isEmpty())
+        val page554Verses = repository.getVersesForPage(554)
+        assertFalse(page554Verses.isEmpty())
 
-        val mulkVerse1 = page562Verses.find { it.surahNumber == 67 && it.verseNumber == 1 }
-        assertNotNull("Surah 67 Ayat 1 should exist on page 562", mulkVerse1)
+        val mulkVerse1 = page554Verses.find { it.surahNumber == 67 && it.verseNumber == 1 }
+        assertNotNull("Surah 67 Ayat 1 should exist on page 554", mulkVerse1)
         assertTrue(mulkVerse1!!.transliterationText.contains("Tabarakalladhi", ignoreCase = true))
         assertTrue(mulkVerse1.romanUrduText.contains("badshahi", ignoreCase = true))
     }

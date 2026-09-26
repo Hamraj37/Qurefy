@@ -14,5 +14,6 @@ data class Surah(
     val versesCount: Int,
     val revelationType: RevelationType,
     val nameRomanUrdu: String = "",
-    val meaningRomanUrdu: String = ""
+    val meaningRomanUrdu: String = "",
+    val parts: String = ""
 )

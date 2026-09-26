@@ -12,14 +12,14 @@ class HomeNavigationTest {
         assertEquals(114, QuranMetaData.surahs.size)
         assertEquals(30, QuranMetaData.juzs.size)
 
-        // Verify Surah 36 Ya-Sin starts at page 440
+        // Verify Surah 36 Ya-Sin starts at page 431
         val yaseen = QuranMetaData.getSurahByNumber(36)
         assertNotNull(yaseen)
-        assertEquals(440, yaseen?.startPage)
+        assertEquals(431, yaseen?.startPage)
 
-        // Verify Sipara 30 starts at page 582
+        // Verify Sipara 30 starts at page 578
         val sipara30 = QuranMetaData.getJuzByNumber(30)
         assertNotNull(sipara30)
-        assertEquals(582, sipara30?.startPage)
+        assertEquals(578, sipara30?.startPage)
     }
 }

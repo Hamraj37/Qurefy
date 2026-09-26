@@ -453,10 +453,10 @@ private fun SurahItem(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(2.dp))
-            val detailText = if (surah.meaningRomanUrdu.isNotEmpty()) {
-                "${surah.nameEnglish} • ${surah.meaningRomanUrdu} • ${surah.versesCount} Verses"
-            } else {
-                "${surah.nameEnglish} • ${surah.versesCount} Verses"
+            val detailText = buildString {
+                if (surah.parts.isNotEmpty()) append("Part ${surah.parts} • ")
+                append("${surah.versesCount} Verses")
+                if (surah.meaningRomanUrdu.isNotEmpty()) append(" • ${surah.meaningRomanUrdu}")
             }
             Text(
                 text = detailText,

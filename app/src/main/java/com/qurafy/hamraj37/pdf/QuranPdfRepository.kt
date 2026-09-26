@@ -16,6 +16,11 @@ import java.io.FileOutputStream
 
 class QuranPdfRepository(private val context: Context) {
 
+    companion object {
+        // Page 1 is Cover Image, Pages 2 & 3 are Index Pages
+        const val PDF_FRONT_MATTER_OFFSET = 3
+    }
+
     private val pdfAssetName = "quran-roman-urdu-hindi.pdf"
     private var pdfRenderer: PdfRenderer? = null
     private var fileDescriptor: ParcelFileDescriptor? = null
@@ -54,11 +59,12 @@ class QuranPdfRepository(private val context: Context) {
 
     fun getPageCount(): Int {
         ensureRendererInitialized()
-        return pdfRenderer?.pageCount ?: 604
+        val totalPdfPages = pdfRenderer?.pageCount ?: (604 + PDF_FRONT_MATTER_OFFSET)
+        return (totalPdfPages - PDF_FRONT_MATTER_OFFSET).coerceAtLeast(1)
     }
 
     suspend fun renderPage(
-        pageNumber: Int, // 1-based page index
+        quranPageNumber: Int, // 1-based Quran page index (1..604)
         targetWidth: Int,
         targetHeight: Int,
         isNightMode: Boolean
@@ -66,10 +72,14 @@ class QuranPdfRepository(private val context: Context) {
         ensureRendererInitialized()
         val renderer = pdfRenderer ?: return@withContext null
 
-        val safePageNumber = pageNumber.coerceIn(1, renderer.pageCount)
-        val pdfPageIndex = safePageNumber - 1
+        val maxQuranPage = (renderer.pageCount - PDF_FRONT_MATTER_OFFSET).coerceAtLeast(1)
+        val safeQuranPage = quranPageNumber.coerceIn(1, maxQuranPage)
 
-        val cacheKey = "p_${safePageNumber}_w${targetWidth}_h${targetHeight}_night$isNightMode"
+        // Convert 1-based Quran page number to 0-based PDF page index
+        // e.g. Quran Page 1 -> (1 + 3) - 1 = 3 (4th page in PDF descriptor)
+        val pdfPageIndex = (safeQuranPage + PDF_FRONT_MATTER_OFFSET - 1).coerceIn(0, renderer.pageCount - 1)
+
+        val cacheKey = "p_${safeQuranPage}_w${targetWidth}_h${targetHeight}_night$isNightMode"
         val cached = bitmapCache.get(cacheKey)
         if (cached != null && !cached.isRecycled) {
             return@withContext cached
