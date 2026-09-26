@@ -144,10 +144,7 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             Surface(
-                tonalElevation = 4.dp,
-                shadowElevation = 6.dp,
-                color = MaterialTheme.colorScheme.surface,
-                border = BorderStroke(1.2.dp, rememberGlassBorderBrush())
+                color = Color.Transparent
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
