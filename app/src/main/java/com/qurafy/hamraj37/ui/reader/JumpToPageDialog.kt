@@ -1,5 +1,6 @@
 package com.qurafy.hamraj37.ui.reader
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -31,6 +32,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.qurafy.hamraj37.data.model.QuranMetaData
+import com.qurafy.hamraj37.ui.components.rememberGlassBorderBrush
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -128,6 +130,7 @@ fun JumpToPageDialog(
                                     submit()
                                 },
                                 label = { Text(text = label) },
+                                border = BorderStroke(1.2.dp, rememberGlassBorderBrush()),
                                 modifier = Modifier.padding(end = 4.dp, bottom = 4.dp)
                             )
                         }

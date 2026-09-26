@@ -71,6 +71,8 @@ import com.qurafy.hamraj37.R
 import com.qurafy.hamraj37.audio.QuranAudioPlayerManager
 import com.qurafy.hamraj37.data.model.Reciter
 import com.qurafy.hamraj37.data.model.Surah
+import com.qurafy.hamraj37.ui.components.rememberGlassBgColor
+import com.qurafy.hamraj37.ui.components.rememberGlassBorderBrush
 
 @Composable
 fun AudioPlayerBar(
@@ -93,14 +95,11 @@ fun AudioPlayerBar(
         modifier = modifier
     ) {
         Surface(
-            tonalElevation = 6.dp,
+            tonalElevation = 8.dp,
             shadowElevation = 12.dp,
             shape = CircleShape,
-            color = MaterialTheme.colorScheme.surfaceContainerHighest,
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
-            )
+            color = rememberGlassBgColor(),
+            border = BorderStroke(1.2.dp, rememberGlassBorderBrush())
         ) {
             Row(
                 modifier = Modifier
@@ -284,10 +283,7 @@ fun AudioPlayerSheet(
                 shadowElevation = 8.dp,
                 shape = RoundedCornerShape(24.dp),
                 color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                border = BorderStroke(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
-                )
+                border = BorderStroke(1.2.dp, rememberGlassBorderBrush())
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.app_icon),

@@ -75,8 +75,8 @@ fun QuranPdfPageView(
         modifier = modifier
             .fillMaxSize()
             .background(
-                if (isNightMode) MaterialTheme.colorScheme.background
-                else MaterialTheme.colorScheme.surface
+                if (isNightMode) Color.Black
+                else Color.White
             ),
         contentAlignment = Alignment.Center
     ) {

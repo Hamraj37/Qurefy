@@ -3,6 +3,8 @@ package com.qurafy.hamraj37.ui.reader
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import com.qurafy.hamraj37.ui.components.rememberGlassBgColor
+import com.qurafy.hamraj37.ui.components.rememberGlassBorderBrush
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
@@ -150,8 +152,8 @@ fun QuranReaderScreen(
                 .fillMaxSize()
                 .padding(contentPadding)
                 .background(
-                    if (isNight) Color(0xFF121212)
-                    else MaterialTheme.colorScheme.background
+                    if (isNight) Color.Black
+                    else Color.White
                 )
         ) {
             HorizontalPager(
@@ -178,16 +180,8 @@ fun QuranReaderScreen(
                 )
             }
 
-            val glassBorderBrush = remember {
-                Brush.linearGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = 0.70f),
-                        Color.White.copy(alpha = 0.20f),
-                        Color.White.copy(alpha = 0.05f)
-                    )
-                )
-            }
-            val glassBgColor = if (isNight) Color(0xCC1E1E1E) else Color(0xDDFFFFFF)
+            val glassBorderBrush = rememberGlassBorderBrush(isDark = isNight)
+            val glassBgColor = rememberGlassBgColor(isDark = isNight)
 
             // Drawing Toolbar Overlay
             AnimatedVisibility(
@@ -247,7 +241,7 @@ fun QuranReaderScreen(
                 exit = fadeOut() + slideOutVertically { -it },
                 modifier = Modifier.align(Alignment.TopCenter)
             ) {
-                TopHeaderCard(title = headerTitle)
+                TopHeaderCard(title = headerTitle, isNightMode = isNight)
             }
 
             // Separate Top Right Floating Pencil Button Overlay
@@ -478,17 +472,11 @@ fun QuranReaderScreen(
 @Composable
 fun TopHeaderCard(
     title: String,
+    isNightMode: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    val glassBorderBrush = remember {
-        Brush.linearGradient(
-            colors = listOf(
-                Color.White.copy(alpha = 0.70f),
-                Color.White.copy(alpha = 0.20f),
-                Color.White.copy(alpha = 0.05f)
-            )
-        )
-    }
+    val glassBorderBrush = rememberGlassBorderBrush(isDark = isNightMode)
+    val glassBgColor = rememberGlassBgColor(isDark = isNightMode)
 
     Surface(
         modifier = modifier
@@ -498,7 +486,7 @@ fun TopHeaderCard(
         shape = CircleShape,
         tonalElevation = 12.dp,
         shadowElevation = 12.dp,
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f)
+        color = glassBgColor
     ) {
         Text(
             text = title,

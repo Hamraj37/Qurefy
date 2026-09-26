@@ -3,9 +3,13 @@ package com.qurafy.hamraj37.ui.home
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
+import com.qurafy.hamraj37.ui.components.LiquidGlassCard
+import com.qurafy.hamraj37.ui.components.rememberGlassBorderBrush
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +23,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
@@ -67,6 +72,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.qurafy.hamraj37.data.model.Juz
@@ -140,7 +146,8 @@ fun HomeScreen(
             Surface(
                 tonalElevation = 4.dp,
                 shadowElevation = 6.dp,
-                color = MaterialTheme.colorScheme.surface
+                color = MaterialTheme.colorScheme.surface,
+                border = BorderStroke(1.2.dp, rememberGlassBorderBrush())
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -259,16 +266,6 @@ fun HomeScreen(
                 .padding(innerPadding)
                 .navigationBarsPadding()
         ) {
-            val glassBorderBrush = remember {
-                Brush.linearGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = 0.70f),
-                        Color.White.copy(alpha = 0.20f),
-                        Color.White.copy(alpha = 0.05f)
-                    )
-                )
-            }
-
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -280,18 +277,13 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(4.dp))
                     val lastReadSurah = remember(lastReadPage) { QuranMetaData.getSurahForPage(lastReadPage) }
 
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(24.dp))
-                            .clickable { onOpenReader(lastReadPage) },
+                    LiquidGlassCard(
+                        modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(24.dp),
-                        border = BorderStroke(1.2.dp, glassBorderBrush),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                        ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        elevation = 4.dp,
+                        onClick = { onOpenReader(lastReadPage) }
                     ) {
                         Column(
                             modifier = Modifier
@@ -412,15 +404,13 @@ fun HomeScreen(
 
                 // 2. Audio Quran Hero Banner
                 item(key = "audio_quran_card") {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(20.dp))
-                            .clickable { onOpenAudioSheet() },
+                    LiquidGlassCard(
+                        modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.45f)
-                        )
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        elevation = 3.dp,
+                        onClick = onOpenAudioSheet
                     ) {
                         Row(
                             modifier = Modifier
@@ -675,16 +665,13 @@ private fun SurahHomeCard(
     onClick: () -> Unit,
     onPlayClick: () -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .clickable(onClick = onClick),
+    LiquidGlassCard(
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isPlayingThisSurah) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
-                             else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
-        )
+        containerColor = if (isPlayingThisSurah) MaterialTheme.colorScheme.primaryContainer
+                         else MaterialTheme.colorScheme.surfaceVariant,
+        elevation = 2.dp,
+        onClick = onClick
     ) {
         Row(
             modifier = Modifier
@@ -773,15 +760,12 @@ private fun JuzHomeCard(
 ) {
     val startSurah = QuranMetaData.getSurahForPage(juz.startPage)
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .clickable(onClick = onClick),
+    LiquidGlassCard(
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
-        )
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        elevation = 2.dp,
+        onClick = onClick
     ) {
         Row(
             modifier = Modifier
@@ -860,15 +844,12 @@ private fun BookmarkHomeCard(
     val surah = QuranMetaData.getSurahForPage(page)
     val juz = QuranMetaData.getJuzForPage(page)
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .clickable(onClick = onClick),
+    LiquidGlassCard(
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
-        )
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        elevation = 2.dp,
+        onClick = onClick
     ) {
         Row(
             modifier = Modifier
@@ -969,7 +950,7 @@ private fun getTimeBasedGreeting(): String {
     return when (hour) {
         in 5..11 -> "Good Morning 🌅"
         in 12..16 -> "Good Afternoon ☀️"
-        in 17..21 -> "Good Evening 🌆"
+        in 17..21 -> "Good Evening 调度"
         else -> "Good Night 🌙"
     }
 }

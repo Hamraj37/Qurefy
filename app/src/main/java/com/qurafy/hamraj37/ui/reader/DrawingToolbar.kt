@@ -33,6 +33,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+import com.qurafy.hamraj37.ui.components.rememberGlassBorderBrush
+
 data class BrushColorOption(
     val color: Color,
     val isHighlighter: Boolean,
@@ -57,15 +59,7 @@ fun DrawingToolbar(
     onCloseDrawingMode: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val glassBorderBrush = androidx.compose.runtime.remember {
-        androidx.compose.ui.graphics.Brush.linearGradient(
-            colors = listOf(
-                Color.White.copy(alpha = 0.70f),
-                Color.White.copy(alpha = 0.20f),
-                Color.White.copy(alpha = 0.05f)
-            )
-        )
-    }
+    val glassBorderBrush = rememberGlassBorderBrush()
 
     Surface(
         modifier = modifier

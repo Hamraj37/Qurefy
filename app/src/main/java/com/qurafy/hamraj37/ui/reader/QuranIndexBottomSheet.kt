@@ -54,6 +54,8 @@ import com.qurafy.hamraj37.data.model.QuranMetaData
 import com.qurafy.hamraj37.data.model.RevelationType
 import com.qurafy.hamraj37.data.model.Surah
 import com.qurafy.hamraj37.data.model.VerseMatch
+import com.qurafy.hamraj37.ui.components.LiquidGlassCard
+import com.qurafy.hamraj37.ui.components.rememberGlassBorderBrush
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -301,53 +303,60 @@ private fun SearchResultCard(
     match: VerseMatch,
     onClick: () -> Unit
 ) {
-    Row(
+    LiquidGlassCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp, horizontal = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(vertical = 4.dp),
+        shape = RoundedCornerShape(12.dp),
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        onClick = onClick
     ) {
-        Box(
+        Row(
             modifier = Modifier
-                .size(42.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.secondaryContainer),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .padding(vertical = 10.dp, horizontal = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "${match.pageNumber}",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
-            )
-        }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Column(modifier = Modifier.weight(1f)) {
-            val titleText = if (match.surahName != null && match.verseNumber != null) {
-                "${match.surahName} - Ayat ${match.verseNumber} (Page ${match.pageNumber})"
-            } else if (match.surahName != null) {
-                "${match.surahName} (Page ${match.pageNumber})"
-            } else {
-                "Page ${match.pageNumber}"
+            Box(
+                modifier = Modifier
+                    .size(42.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.secondaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "${match.pageNumber}",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
             }
 
-            Text(
-                text = titleText,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = match.textSnippet,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface,
-                lineHeight = 18.sp
-            )
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                val titleText = if (match.surahName != null && match.verseNumber != null) {
+                    "${match.surahName} - Ayat ${match.verseNumber} (Page ${match.pageNumber})"
+                } else if (match.surahName != null) {
+                    "${match.surahName} (Page ${match.pageNumber})"
+                } else {
+                    "Page ${match.pageNumber}"
+                }
+
+                Text(
+                    text = titleText,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = match.textSnippet,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    lineHeight = 18.sp
+                )
+            }
         }
     }
 }
@@ -411,101 +420,105 @@ private fun SurahItem(
     onClick: () -> Unit,
     onPlayClick: (() -> Unit)? = null
 ) {
-    Row(
+    LiquidGlassCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(
-                if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-                else MaterialTheme.colorScheme.surface
-            )
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp, horizontal = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(vertical = 4.dp),
+        shape = RoundedCornerShape(12.dp),
+        containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+                         else MaterialTheme.colorScheme.surfaceVariant,
+        onClick = onClick
     ) {
-        // Surah Number Badge
-        Box(
+        Row(
             modifier = Modifier
-                .size(42.dp)
-                .clip(CircleShape)
-                .background(
-                    if (isSelected) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.secondaryContainer
-                ),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .padding(vertical = 10.dp, horizontal = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "${surah.number}",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
-            )
-        }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        // English & Roman Urdu Names & Info
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = if (surah.nameRomanUrdu.isNotEmpty()) "${surah.nameTransliteration} (${surah.nameRomanUrdu})" else surah.nameTransliteration,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            val detailText = buildString {
-                if (surah.parts.isNotEmpty()) append("Part ${surah.parts} • ")
-                append("${surah.versesCount} Verses")
-                if (surah.meaningRomanUrdu.isNotEmpty()) append(" • ${surah.meaningRomanUrdu}")
-            }
-            Text(
-                text = detailText,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-        if (onPlayClick != null) {
-            IconButton(onClick = onPlayClick) {
-                Icon(
-                    imageVector = Icons.Rounded.PlayArrow,
-                    contentDescription = "Play Surah Recitation",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.width(4.dp))
-
-        // Arabic Name & Page Number
-        Column(horizontalAlignment = Alignment.End) {
-            Text(
-                text = surah.nameArabic,
-                style = MaterialTheme.typography.titleMedium,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-                textAlign = TextAlign.End
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                AssistChip(
-                    onClick = onClick,
-                    label = {
-                        Text(
-                            text = if (surah.revelationType == RevelationType.MECCAN) "Meccan" else "Medinan",
-                            fontSize = 10.sp
-                        )
-                    },
-                    modifier = Modifier.height(24.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
+            // Surah Number Badge
+            Box(
+                modifier = Modifier
+                    .size(42.dp)
+                    .clip(CircleShape)
+                    .background(
+                        if (isSelected) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.secondaryContainer
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
                 Text(
-                    text = "Page ${surah.startPage}",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.secondary
+                    text = "${surah.number}",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
                 )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // English & Roman Urdu Names & Info
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = if (surah.nameRomanUrdu.isNotEmpty()) "${surah.nameTransliteration} (${surah.nameRomanUrdu})" else surah.nameTransliteration,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                val detailText = buildString {
+                    if (surah.parts.isNotEmpty()) append("Part ${surah.parts} • ")
+                    append("${surah.versesCount} Verses")
+                    if (surah.meaningRomanUrdu.isNotEmpty()) append(" • ${surah.meaningRomanUrdu}")
+                }
+                Text(
+                    text = detailText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            if (onPlayClick != null) {
+                IconButton(onClick = onPlayClick) {
+                    Icon(
+                        imageVector = Icons.Rounded.PlayArrow,
+                        contentDescription = "Play Surah Recitation",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            // Arabic Name & Page Number
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = surah.nameArabic,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.End
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    AssistChip(
+                        onClick = onClick,
+                        label = {
+                            Text(
+                                text = if (surah.revelationType == RevelationType.MECCAN) "Meccan" else "Medinan",
+                                fontSize = 10.sp
+                            )
+                        },
+                        modifier = Modifier.height(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Page ${surah.startPage}",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
             }
         }
     }
@@ -567,73 +580,77 @@ private fun JuzItem(
 ) {
     val startSurah = QuranMetaData.getSurahForPage(juz.startPage)
 
-    Row(
+    LiquidGlassCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(
-                if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-                else MaterialTheme.colorScheme.surface
-            )
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp, horizontal = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(vertical = 4.dp),
+        shape = RoundedCornerShape(12.dp),
+        containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+                         else MaterialTheme.colorScheme.surfaceVariant,
+        onClick = onClick
     ) {
-        // Juz Badge
-        Box(
+        Row(
             modifier = Modifier
-                .size(42.dp)
-                .clip(CircleShape)
-                .background(
-                    if (isSelected) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.tertiaryContainer
-                ),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .padding(vertical = 10.dp, horizontal = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "${juz.number}",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onTertiaryContainer
-            )
-        }
+            // Juz Badge
+            Box(
+                modifier = Modifier
+                    .size(42.dp)
+                    .clip(CircleShape)
+                    .background(
+                        if (isSelected) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.tertiaryContainer
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "${juz.number}",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onTertiaryContainer
+                )
+            }
 
-        Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(12.dp))
 
-        // Info
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = if (juz.nameRomanUrdu.isNotEmpty()) "${juz.nameEnglish} • ${juz.nameRomanUrdu}" else juz.nameEnglish,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = "Starts at ${startSurah?.nameTransliteration ?: ""} (${startSurah?.nameArabic ?: ""})",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+            // Info
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = if (juz.nameRomanUrdu.isNotEmpty()) "${juz.nameEnglish} • ${juz.nameRomanUrdu}" else juz.nameEnglish,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "Starts at ${startSurah?.nameTransliteration ?: ""} (${startSurah?.nameArabic ?: ""})",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
 
-        Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
-        // Arabic & Page
-        Column(horizontalAlignment = Alignment.End) {
-            Text(
-                text = juz.nameArabic,
-                style = MaterialTheme.typography.titleMedium,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = "Page ${juz.startPage}",
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.secondary
-            )
+            // Arabic & Page
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = juz.nameArabic,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "Page ${juz.startPage}",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
         }
     }
 }
@@ -681,69 +698,72 @@ private fun BookmarksList(
                 val juz = QuranMetaData.getJuzForPage(page)
                 val isSelected = currentPage == page
 
-                Row(
+                LiquidGlassCard(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(
-                            if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-                            else MaterialTheme.colorScheme.surface
-                        )
-                        .clickable { onPageClick(page) }
-                        .padding(vertical = 12.dp, horizontal = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(vertical = 4.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+                                     else MaterialTheme.colorScheme.surfaceVariant,
+                    onClick = { onPageClick(page) }
                 ) {
-                    Box(
+                    Row(
                         modifier = Modifier
-                            .size(42.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primaryContainer),
-                        contentAlignment = Alignment.Center
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp, horizontal = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "$page",
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
+                        Box(
+                            modifier = Modifier
+                                .size(42.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primaryContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "$page",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
 
-                    Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
 
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Page $page • ${surah?.nameTransliteration ?: ""}",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = "Juz ${juz?.number ?: "-"} • Surah ${surah?.number ?: "-"}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Page $page • ${surah?.nameTransliteration ?: ""}",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Juz ${juz?.number ?: "-"} • Surah ${surah?.number ?: "-"}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
 
-                    if (onPlaySurah != null && surah != null) {
-                        IconButton(onClick = { onPlaySurah(surah) }) {
+                        if (onPlaySurah != null && surah != null) {
+                            IconButton(onClick = { onPlaySurah(surah) }) {
+                                Icon(
+                                    imageVector = Icons.Rounded.PlayArrow,
+                                    contentDescription = "Play Surah Recitation",
+                                    tint = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                        }
+
+                        IconButton(onClick = { onToggleBookmark(page) }) {
                             Icon(
-                                imageVector = Icons.Rounded.PlayArrow,
-                                contentDescription = "Play Surah Recitation",
-                                tint = MaterialTheme.colorScheme.secondary
+                                imageVector = Icons.Rounded.Delete,
+                                contentDescription = "Delete Bookmark",
+                                tint = MaterialTheme.colorScheme.error
                             )
                         }
                     }
-
-                    IconButton(onClick = { onToggleBookmark(page) }) {
-                        Icon(
-                            imageVector = Icons.Rounded.Delete,
-                            contentDescription = "Delete Bookmark",
-                            tint = MaterialTheme.colorScheme.error
-                        )
-                    }
                 }
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
             }
         }
     }

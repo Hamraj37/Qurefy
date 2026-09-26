@@ -1,5 +1,6 @@
 package com.qurafy.hamraj37.ui.update
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.qurafy.hamraj37.data.model.UpdateInfo
+import com.qurafy.hamraj37.ui.components.LiquidGlassCard
+import com.qurafy.hamraj37.ui.components.rememberGlassBorderBrush
 
 @Composable
 fun AppUpdateDialog(
@@ -119,21 +122,25 @@ fun AppUpdateDialog(
 
                 Spacer(modifier = Modifier.height(6.dp))
 
-                Box(
+                LiquidGlassCard(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 180.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
-                        .padding(12.dp)
-                        .verticalScroll(rememberScrollState())
+                        .heightIn(max = 180.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
                 ) {
-                    Text(
-                        text = updateInfo.releaseNotes,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        lineHeight = 18.sp
-                    )
+                    Box(
+                        modifier = Modifier
+                            .padding(12.dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        Text(
+                            text = updateInfo.releaseNotes,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            lineHeight = 18.sp
+                        )
+                    }
                 }
             }
         },
