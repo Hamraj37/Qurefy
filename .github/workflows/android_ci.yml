@@ -33,9 +33,6 @@ jobs:
       - name: Run Unit Tests
         run: ./gradlew app:testDebugUnitTest --stacktrace
 
-      - name: Build Debug APK
-        run: ./gradlew app:assembleDebug --stacktrace
-
       - name: Build Signed Release APK
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
@@ -44,13 +41,8 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew app:assembleRelease --stacktrace
 
-      - name: Upload Debug APK Artifact
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: Qurafy-Debug-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: ignore
+      - name: Build Debug APK
+        run: ./gradlew app:assembleDebug --stacktrace
 
       - name: Upload Release APK Artifact
         uses: actions/upload-artifact@v4
@@ -58,6 +50,14 @@ jobs:
         with:
           name: Qurafy-Release-APK
           path: app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: ignore
+
+      - name: Upload Debug APK Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Qurafy-Debug-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: ignore
 
       - name: Extract App Version Name
