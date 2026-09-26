@@ -57,7 +57,13 @@ class GitHubUpdateChecker {
                 val hasUpdate = isVersionNewer(release.tagName, currentVersionName)
                 if (!hasUpdate) return@withContext null
 
-                val apkAsset = release.assets.firstOrNull { it.name.endsWith(".apk", ignoreCase = true) }
+                val apkAsset = release.assets.firstOrNull {
+                    it.name.contains("release", ignoreCase = true) && it.name.endsWith(".apk", ignoreCase = true)
+                } ?: release.assets.firstOrNull {
+                    !it.name.contains("debug", ignoreCase = true) && it.name.endsWith(".apk", ignoreCase = true)
+                } ?: release.assets.firstOrNull {
+                    it.name.endsWith(".apk", ignoreCase = true)
+                }
                 val downloadUrl = apkAsset?.browserDownloadUrl ?: release.htmlUrl
 
                 return@withContext UpdateInfo(
