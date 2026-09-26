@@ -28,9 +28,13 @@ import androidx.compose.material.icons.rounded.BookmarkBorder
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.GraphicEq
+import androidx.compose.material.icons.rounded.Headphones
 import androidx.compose.material.icons.rounded.LightMode
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SettingsBrightness
+import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -39,6 +43,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -66,9 +71,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.qurafy.hamraj37.data.model.Juz
 import com.qurafy.hamraj37.data.model.QuranMetaData
+import com.qurafy.hamraj37.data.model.Reciter
 import com.qurafy.hamraj37.data.model.Surah
-import androidx.compose.material.icons.rounded.SystemUpdate
 import com.qurafy.hamraj37.data.repository.NightModePreference
+import com.qurafy.hamraj37.ui.audio.AudioPlayerBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,10 +83,21 @@ fun HomeScreen(
     totalPages: Int = 604,
     bookmarkedPages: Set<Int>,
     nightMode: NightModePreference,
+    playingSurah: Surah = QuranMetaData.surahs.first(),
+    currentReciter: Reciter = Reciter.DEFAULT,
+    isPlayingAudio: Boolean = false,
+    isBufferingAudio: Boolean = false,
+    isAudioPlayerBarVisible: Boolean = false,
     onSetNightMode: (NightModePreference) -> Unit,
     onToggleBookmark: (Int) -> Unit,
     onOpenReader: (targetPage: Int) -> Unit,
-    onCheckForUpdates: () -> Unit = {}
+    onCheckForUpdates: () -> Unit = {},
+    onPlaySurah: (Surah) -> Unit = {},
+    onTogglePlayPauseAudio: () -> Unit = {},
+    onNextSurahAudio: () -> Unit = {},
+    onPreviousSurahAudio: () -> Unit = {},
+    onOpenAudioSheet: () -> Unit = {},
+    onCloseAudioPlayer: () -> Unit = {}
 ) {
     var showThemeMenu by remember { mutableStateOf(false) }
     var selectedTabIndex by remember { mutableIntStateOf(0) } // 0: Surahs, 1: Juzs, 2: Bookmarks
@@ -216,7 +233,25 @@ fun HomeScreen(
                     }
                 }
             }
-        }
+        },
+        floatingActionButton = {
+            AudioPlayerBar(
+                isVisible = isAudioPlayerBarVisible,
+                currentSurah = playingSurah,
+                currentReciter = currentReciter,
+                isPlaying = isPlayingAudio,
+                isBuffering = isBufferingAudio,
+                onTogglePlayPause = onTogglePlayPauseAudio,
+                onNextSurah = onNextSurahAudio,
+                onPreviousSurah = onPreviousSurahAudio,
+                onExpandPlayer = onOpenAudioSheet,
+                onClosePlayer = onCloseAudioPlayer,
+                modifier = Modifier
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .navigationBarsPadding()
+            )
+        },
+        floatingActionButtonPosition = FabPosition.Center
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -375,7 +410,87 @@ fun HomeScreen(
                     }
                 }
 
-                // 2. Navigation Tabs (Surahs, Juzs, Bookmarks)
+                // 2. Audio Quran Hero Banner
+                item(key = "audio_quran_card") {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(20.dp))
+                            .clickable { onOpenAudioSheet() },
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.45f)
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(46.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.secondaryContainer),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Headphones,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.width(14.dp))
+
+                                Column {
+                                    Text(
+                                        text = "Audio Quran Recitation",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = "${currentReciter.nameEnglish} • 5 Reciters",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
+                                    )
+                                }
+                            }
+
+                            Button(
+                                onClick = onOpenAudioSheet,
+                                shape = CircleShape,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    contentColor = MaterialTheme.colorScheme.onPrimary
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.PlayArrow,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "Listen",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // 3. Navigation Tabs (Surahs, Juzs, Bookmarks)
                 item(key = "index_tabs") {
                     Column {
                         PrimaryTabRow(
@@ -445,7 +560,7 @@ fun HomeScreen(
                     }
                 }
 
-                // 3. Tab Contents
+                // 4. Tab Contents
                 when (selectedTabIndex) {
                     0 -> { // Surahs Tab
                         if (filteredSurahs.isEmpty()) {
@@ -465,9 +580,12 @@ fun HomeScreen(
                             }
                         } else {
                             items(filteredSurahs, key = { "home_surah_${it.number}" }) { surah ->
+                                val isPlayingThisSurah = isPlayingAudio && playingSurah.number == surah.number
                                 SurahHomeCard(
                                     surah = surah,
-                                    onClick = { onOpenReader(surah.startPage) }
+                                    isPlayingThisSurah = isPlayingThisSurah,
+                                    onClick = { onOpenReader(surah.startPage) },
+                                    onPlayClick = { onPlaySurah(surah) }
                                 )
                             }
                         }
@@ -553,7 +671,9 @@ fun HomeScreen(
 @Composable
 private fun SurahHomeCard(
     surah: Surah,
-    onClick: () -> Unit
+    isPlayingThisSurah: Boolean = false,
+    onClick: () -> Unit,
+    onPlayClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -562,7 +682,8 @@ private fun SurahHomeCard(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+            containerColor = if (isPlayingThisSurah) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
+                             else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
         )
     ) {
         Row(
@@ -571,19 +692,19 @@ private fun SurahHomeCard(
                 .padding(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Surah Number
+            // Surah Number Badge
             Box(
                 modifier = Modifier
                     .size(44.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
+                    .background(if (isPlayingThisSurah) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "${surah.number}",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = if (isPlayingThisSurah) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
 
@@ -620,6 +741,17 @@ private fun SurahHomeCard(
                     )
                 }
             }
+
+            // Audio Play Button
+            IconButton(onClick = onPlayClick) {
+                Icon(
+                    imageVector = if (isPlayingThisSurah) Icons.Rounded.GraphicEq else Icons.Rounded.PlayArrow,
+                    contentDescription = "Play Surah Recitation",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
 
             // Arabic Title
             Text(

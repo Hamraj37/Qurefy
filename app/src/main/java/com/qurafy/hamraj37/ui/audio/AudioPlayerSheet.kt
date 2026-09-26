@@ -1,8 +1,12 @@
 package com.qurafy.hamraj37.ui.audio
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +16,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -55,10 +60,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.qurafy.hamraj37.R
 import com.qurafy.hamraj37.audio.QuranAudioPlayerManager
 import com.qurafy.hamraj37.data.model.Reciter
 import com.qurafy.hamraj37.data.model.Surah
@@ -79,45 +88,46 @@ fun AudioPlayerBar(
 ) {
     AnimatedVisibility(
         visible = isVisible,
-        enter = slideInVertically(initialOffsetY = { it }),
-        exit = slideOutVertically(targetOffsetY = { it }),
+        enter = slideInVertically(initialOffsetY = { it * 2 }) + fadeIn(),
+        exit = slideOutVertically(targetOffsetY = { it * 2 }) + fadeOut(),
         modifier = modifier
     ) {
         Surface(
-            tonalElevation = 8.dp,
-            shadowElevation = 8.dp,
-            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerHigh
+            tonalElevation = 6.dp,
+            shadowElevation = 12.dp,
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surfaceContainerHighest,
+            border = BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
+            )
         ) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .clickable(onClick = onExpandPlayer)
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                    .padding(horizontal = 8.dp, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Audio badge
-                Box(
+                // Audio App Icon Thumbnail
+                Image(
+                    painter = painterResource(id = R.drawable.app_icon),
+                    contentDescription = "Audio Thumbnail",
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(44.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.GraphicEq,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
+                        .size(40.dp)
+                        .clip(CircleShape)
+                )
 
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(10.dp))
 
                 // Title & Reciter Info
-                Column(modifier = Modifier.weight(1f)) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .padding(end = 4.dp)
+                ) {
                     val titleText = if (currentSurah.nameRomanUrdu.isNotEmpty()) {
-                        "سُورَةُ ${currentSurah.nameArabic} • ${currentSurah.nameTransliteration} (${currentSurah.nameRomanUrdu})"
+                        "سُورَةُ ${currentSurah.nameArabic} • ${currentSurah.nameTransliteration}"
                     } else {
                         "سُورَةُ ${currentSurah.nameArabic} • ${currentSurah.nameTransliteration}"
                     }
@@ -129,62 +139,75 @@ fun AudioPlayerBar(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Spacer(modifier = Modifier.height(2.dp))
+                    Spacer(modifier = Modifier.height(1.dp))
                     Text(
                         text = "${currentReciter.nameEnglish} • Surah ${currentSurah.number}",
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(4.dp))
 
-                // Control buttons
-                IconButton(onClick = onPreviousSurah) {
+                // Prev Surah
+                IconButton(
+                    onClick = onPreviousSurah,
+                    modifier = Modifier.size(32.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Rounded.SkipPrevious,
-                        contentDescription = "Previous Surah"
+                        contentDescription = "Previous Surah",
+                        modifier = Modifier.size(18.dp)
                     )
                 }
 
+                // Main Play/Pause FAB Button
                 FilledIconButton(
                     onClick = onTogglePlayPause,
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(36.dp),
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 ) {
                     if (isBuffering) {
                         CircularProgressIndicator(
                             color = MaterialTheme.colorScheme.onPrimary,
                             strokeWidth = 2.dp,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(16.dp)
                         )
                     } else {
                         Icon(
                             imageVector = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
-                            contentDescription = if (isPlaying) "Pause" else "Play"
+                            contentDescription = if (isPlaying) "Pause" else "Play",
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }
 
-                IconButton(onClick = onNextSurah) {
+                // Next Surah
+                IconButton(
+                    onClick = onNextSurah,
+                    modifier = Modifier.size(32.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Rounded.SkipNext,
-                        contentDescription = "Next Surah"
+                        contentDescription = "Next Surah",
+                        modifier = Modifier.size(18.dp)
                     )
                 }
 
-                IconButton(onClick = onExpandPlayer) {
-                    Icon(
-                        imageVector = Icons.Rounded.ExpandLess,
-                        contentDescription = "Expand Player Controls"
-                    )
-                }
-
-                IconButton(onClick = onClosePlayer) {
+                // Close FAB
+                IconButton(
+                    onClick = onClosePlayer,
+                    modifier = Modifier.size(32.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Rounded.Close,
-                        contentDescription = "Close Audio Player"
+                        contentDescription = "Close Audio Player",
+                        modifier = Modifier.size(18.dp)
                     )
                 }
             }
@@ -228,7 +251,8 @@ fun AudioPlayerSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 12.dp),
+                .padding(horizontal = 24.dp, vertical = 8.dp)
+                .navigationBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Header
@@ -238,7 +262,7 @@ fun AudioPlayerSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Quran Recitation",
+                    text = "Now Playing",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
@@ -252,47 +276,60 @@ fun AudioPlayerSheet(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Large Surah Badge
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
+            // Audio Artwork (App Icon)
+            Surface(
+                tonalElevation = 6.dp,
+                shadowElevation = 8.dp,
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                )
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = currentSurah.nameArabic,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                    Text(
-                        text = "Surah ${currentSurah.number}",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
-                    )
-                }
+                Image(
+                    painter = painterResource(id = R.drawable.app_icon),
+                    contentDescription = "Audio Artwork",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(RoundedCornerShape(24.dp))
+                )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
-            // Surah Transliteration & Roman Urdu & English name / meaning
+            // Prominent Arabic Surah Calligraphy Title
+            Text(
+                text = "سُورَةُ ${currentSurah.nameArabic}",
+                style = MaterialTheme.typography.headlineMedium,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Surah Transliteration & Number
             val surahTitle = if (currentSurah.nameRomanUrdu.isNotEmpty()) {
-                "${currentSurah.nameTransliteration} (${currentSurah.nameRomanUrdu})"
+                "Surah ${currentSurah.number}: ${currentSurah.nameTransliteration} (${currentSurah.nameRomanUrdu})"
             } else {
-                currentSurah.nameTransliteration
+                "Surah ${currentSurah.number}: ${currentSurah.nameTransliteration}"
             }
             Text(
                 text = surahTitle,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
             )
 
+            Spacer(modifier = Modifier.height(2.dp))
+
+            // English Meaning & Verses Details
             val surahDetail = if (currentSurah.meaningRomanUrdu.isNotEmpty()) {
                 "${currentSurah.nameEnglish} (${currentSurah.meaningRomanUrdu}) • ${currentSurah.versesCount} Verses"
             } else {
@@ -300,11 +337,12 @@ fun AudioPlayerSheet(
             }
             Text(
                 text = surahDetail,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             // Reciter Picker Dropdown / Chip
             Box {
@@ -354,7 +392,7 @@ fun AudioPlayerSheet(
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Progress Slider
             Slider(
@@ -388,7 +426,7 @@ fun AudioPlayerSheet(
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Main Controls Row
             Row(
@@ -457,7 +495,7 @@ fun AudioPlayerSheet(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             // Secondary Controls: Speed & Jump to Page
             Row(
@@ -514,7 +552,7 @@ fun AudioPlayerSheet(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 }

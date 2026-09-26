@@ -11,6 +11,7 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
+import com.qurafy.hamraj37.R
 import com.qurafy.hamraj37.data.model.QuranMetaData
 import com.qurafy.hamraj37.data.model.Reciter
 import com.qurafy.hamraj37.data.model.Surah
@@ -114,6 +115,7 @@ class QuranAudioPlayerManager private constructor(private val context: Context) 
         _isPlayerVisible.value = true
 
         val audioUrl = reciter.getSurahAudioUrl(surah.number)
+        val artworkUri = Uri.parse("android.resource://${context.packageName}/${R.drawable.app_icon}")
 
         val metadata = MediaMetadata.Builder()
             .setTitle("سُورَةُ ${surah.nameArabic} • ${surah.nameTransliteration}")
@@ -121,6 +123,7 @@ class QuranAudioPlayerManager private constructor(private val context: Context) 
             .setAlbumTitle("Surah ${surah.number} (${surah.nameEnglish})")
             .setDisplayTitle("Surah ${surah.number}: ${surah.nameTransliteration}")
             .setSubtitle(reciter.nameArabic)
+            .setArtworkUri(artworkUri)
             .build()
 
         val mediaItem = MediaItem.Builder()
